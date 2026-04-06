@@ -23,7 +23,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ai-bridge/ai-bridge.git",
+    "url": "git+https://github.com/vivek5200/ai-bridge.git",
     "directory": "packages/context-cli"
   },
   "files": [

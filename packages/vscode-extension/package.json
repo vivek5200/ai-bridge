@@ -7,7 +7,7 @@
   "icon": "icon.png",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ai-bridge/ai-bridge"
+    "url": "https://github.com/vivek5200/ai-bridge"
   },
   "engines": {
     "vscode": "^1.85.0"
