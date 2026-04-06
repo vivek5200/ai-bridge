@@ -1,0 +1,46 @@
+{
+  "name": "ai-bridge-cli",
+  "version": "1.0.0",
+  "description": "Token-budget aware context crawler for AI Bridge",
+  "type": "module",
+  "bin": {
+    "bridge-context": "bin/bridge-context.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "prepublishOnly": "npm run build",
+    "start": "node bin/bridge-context.js"
+  },
+  "keywords": [
+    "ai",
+    "bridge",
+    "context",
+    "token-budget",
+    "crawler",
+    "developer-tools",
+    "clipboard"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ai-bridge/ai-bridge.git",
+    "directory": "packages/context-cli"
+  },
+  "files": [
+    "bin/",
+    "out/",
+    "README.md"
+  ],
+  "dependencies": {
+    "chalk": "^5.4.0",
+    "clipboardy": "^4.0.0",
+    "commander": "^13.1.0",
+    "inquirer": "^12.4.0",
+    "tiktoken": "^1.0.19"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "typescript": "^5.3.0"
+  },
+  "license": "MIT"
+}

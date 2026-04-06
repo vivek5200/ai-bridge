@@ -1,0 +1,34 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+out/
+dist/
+*.vsix
+*.zip
+*.tgz
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+!.vscode/extensions.json
+!.vscode/launch.json
+
+# Environment
+.env
+.env.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# Runtime data
+queue.json
+auth.token
+*.pid
+
+# Test coverage
+coverage/

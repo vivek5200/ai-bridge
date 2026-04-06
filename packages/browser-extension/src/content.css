@@ -1,0 +1,51 @@
+/* ─── AI Bridge Content Script Styles ──────────────────────────────────────── */
+
+.ai-bridge-btn-container {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  z-index: 100;
+  display: flex;
+  gap: 4px;
+}
+
+.ai-bridge-send-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border: none;
+  border-radius: 6px;
+  background: rgba(137, 180, 250, 0.15);
+  color: #89b4fa;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  backdrop-filter: blur(8px);
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.ai-bridge-send-btn:hover {
+  background: rgba(137, 180, 250, 0.3);
+  color: #b4d0fb;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(137, 180, 250, 0.2);
+}
+
+.ai-bridge-send-btn:active {
+  transform: translateY(0);
+}
+
+.ai-bridge-send-btn span {
+  pointer-events: none;
+}
+
+/* Hide button text on very small code blocks */
+@media (max-width: 400px) {
+  .ai-bridge-send-btn span {
+    display: none;
+  }
+}

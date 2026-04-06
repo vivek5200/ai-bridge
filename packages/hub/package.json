@@ -1,0 +1,36 @@
+{
+  "name": "ai-bridge-hub",
+  "version": "1.0.0",
+  "description": "Local WebSocket hub for AI Bridge — secure message router with persistent queue",
+  "main": "src/server.js",
+  "bin": {
+    "ai-bridge-hub": "src/server.js"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node ../../test/e2e.js"
+  },
+  "keywords": [
+    "ai",
+    "bridge",
+    "websocket",
+    "vscode",
+    "developer-tools",
+    "hub"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ai-bridge/ai-bridge.git",
+    "directory": "packages/hub"
+  },
+  "files": [
+    "src/",
+    "README.md"
+  ],
+  "dependencies": {
+    "ws": "^8.20.0",
+    "uuid": "^11.1.0"
+  },
+  "license": "MIT"
+}

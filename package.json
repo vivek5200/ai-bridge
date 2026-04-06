@@ -1,0 +1,23 @@
+{
+  "name": "ai-bridge",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Browser-to-VS Code AI Bridge — capture AI-generated code and apply it directly in your editor",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present"
+  },
+  "keywords": [
+    "ai",
+    "vscode",
+    "browser-extension",
+    "diff",
+    "developer-tools"
+  ],
+  "author": "",
+  "license": "MIT"
+}

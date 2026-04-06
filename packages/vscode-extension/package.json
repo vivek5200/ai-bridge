@@ -1,0 +1,106 @@
+{
+  "name": "ai-bridge-vscode",
+  "displayName": "AI Bridge",
+  "description": "Apply AI-generated code from ChatGPT, Claude, and Gemini directly in VS Code",
+  "version": "1.0.0",
+  "publisher": "ai-bridge",
+  "icon": "icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ai-bridge/ai-bridge"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": ["Other"],
+  "activationEvents": ["onStartupFinished"],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "aiBridge.connect",
+        "title": "AI Bridge: Connect to Hub"
+      },
+      {
+        "command": "aiBridge.disconnect",
+        "title": "AI Bridge: Disconnect from Hub"
+      },
+      {
+        "command": "aiBridge.showQueue",
+        "title": "AI Bridge: Show Pending Queue"
+      },
+      {
+        "command": "aiBridge.showStatus",
+        "title": "AI Bridge: Show Connection Status"
+      }
+    ],
+    "configuration": {
+      "title": "AI Bridge",
+      "properties": {
+        "aiBridge.autoConnect": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically connect to the hub on startup"
+        },
+        "aiBridge.hubHost": {
+          "type": "string",
+          "default": "127.0.0.1",
+          "description": "Hub server host address"
+        },
+        "aiBridge.hubPort": {
+          "type": "number",
+          "default": 8080,
+          "description": "Hub server port"
+        },
+        "aiBridge.allowedTerminalPrefixes": {
+          "type": "array",
+          "default": [
+            "npm ",
+            "npx ",
+            "yarn ",
+            "pnpm ",
+            "cargo ",
+            "git ",
+            "python ",
+            "pip ",
+            "node ",
+            "deno ",
+            "bun ",
+            "go ",
+            "dotnet ",
+            "mvn ",
+            "gradle "
+          ],
+          "description": "Allowed command prefixes for terminal execution (deny-by-default)"
+        },
+        "aiBridge.alwaysConfirmTerminal": {
+          "type": "boolean",
+          "default": true,
+          "description": "Always show confirmation before running terminal commands"
+        },
+        "aiBridge.diffFuzzFactor": {
+          "type": "number",
+          "default": 2,
+          "description": "Fuzz factor for diff patch application (higher = more lenient)"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "lint": "eslint src --ext ts"
+  },
+  "dependencies": {
+    "diff": "^7.0.0",
+    "ws": "^8.20.0"
+  },
+  "devDependencies": {
+    "@types/diff": "^6.0.0",
+    "@types/node": "^20.11.0",
+    "@types/vscode": "^1.85.0",
+    "@types/ws": "^8.5.0",
+    "typescript": "^5.3.0"
+  }
+}
