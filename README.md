@@ -1,5 +1,9 @@
 # AI Bridge — Browser-to-VS Code
 
+[![NPM: Hub](https://img.shields.io/npm/v/ai-bridge-hub.svg?label=ai-bridge-hub&color=green)](https://npmjs.com/package/ai-bridge-hub)
+[![NPM: CLI](https://img.shields.io/npm/v/ai-bridge-cli.svg?label=ai-bridge-cli&color=blue)](https://npmjs.com/package/ai-bridge-cli)
+[![GitHub release](https://img.shields.io/github/v/release/vivek5200/ai-bridge)](https://github.com/vivek5200/ai-bridge/releases)
+
 > Capture AI-generated code from ChatGPT, Claude, and Gemini — apply it directly in VS Code with one click.
 
 ## Architecture
