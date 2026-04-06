@@ -1,11 +1,11 @@
-# @ai-bridge/cli
+# ai-bridge-cli
 
 > Token-budget aware dependency crawler for assembling AI chat context.
 
 ## Install
 
 ```bash
-npm install -g @ai-bridge/cli
+npm install -g ai-bridge-cli
 ```
 
 ## Usage

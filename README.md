@@ -23,19 +23,31 @@ Browser Extension  ──WebSocket──►  Local Hub (127.0.0.1:8080)  ──W
 
 ## Quick Start
 
+### 1. Install Node Packages
+
 ```bash
-# 1. Install dependencies
-npm install
-
-# 2. Start the hub
-npm run start -w packages/hub
-
-# 3. Copy the printed token and paste it into the browser extension options page
-
-# 4. Install the VS Code extension (reads token automatically)
-
-# 5. Use bridge-context CLI to gather context, paste into AI chat, and send code back!
+npm install -g ai-bridge-hub ai-bridge-cli
 ```
+
+### 2. Start the Hub
+
+```bash
+ai-bridge-hub
+```
+*Copy the printed 32-character token*
+
+### 3. Install Applications
+
+- **VS Code Extension**: Search for `Vivek AI Bridge` in the extensions tab, or download from GitHub Releases.
+- **Chrome / Edge Extension**: Download from Microsoft Edge Add-ons (search `AI Bridge`), or load manually using the GitHub Releases `.zip`.
+
+### 4. Setup
+
+Paste your auth token into the browser extension when prompted. The VS Code extension reads the token automatically.
+
+### 5. Send Code!
+
+Browse to ChatGPT or Claude. Use `bridge-context` CLI in your terminal to gather project context and paste it to the AI. Click the new lightning button on the AI code blocks to shoot them directly into VS Code!
 
 ## Security
 

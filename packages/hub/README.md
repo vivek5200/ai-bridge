@@ -1,11 +1,11 @@
-# @ai-bridge/hub
+# ai-bridge-hub
 
 > Local WebSocket hub for AI Bridge — secure message router with persistent queue.
 
 ## Install
 
 ```bash
-npm install -g @ai-bridge/hub
+npm install -g ai-bridge-hub
 ```
 
 ## Usage
@@ -15,7 +15,7 @@ npm install -g @ai-bridge/hub
 ai-bridge-hub
 
 # Or run directly
-npx @ai-bridge/hub
+npx ai-bridge-hub
 ```
 
 On first start, the hub will:
