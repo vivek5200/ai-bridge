@@ -13,10 +13,10 @@ function copyStaticFiles() {
         resolve(__dirname, 'dist/manifest.json')
       );
 
-      // Copy options.html
+      // Copy popup.html
       fs.copyFileSync(
-        resolve(__dirname, 'src/options.html'),
-        resolve(__dirname, 'dist/options.html')
+        resolve(__dirname, 'src/popup.html'),
+        resolve(__dirname, 'dist/popup.html')
       );
 
       // Copy offscreen.html
@@ -59,7 +59,7 @@ export default defineConfig({
         background: resolve(__dirname, 'src/background.ts'),
         content: resolve(__dirname, 'src/content.ts'),
         offscreen: resolve(__dirname, 'src/offscreen.ts'),
-        options: resolve(__dirname, 'src/options.ts'),
+        popup: resolve(__dirname, 'src/popup.ts'),
       },
       output: {
         entryFileNames: '[name].js',

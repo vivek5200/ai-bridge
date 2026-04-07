@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #09090b;
+      --card-bg: rgba(24, 24, 27, 0.7);
+      --border: rgba(255, 255, 255, 0.1);
+      --text: #f4f4f5;
+      --text-muted: #a1a1aa;
+      --primary: #8b5cf6;
+      --primary-hover: #7c3aed;
+      --success: #34d399;
+      --error: #fb7185;
+      --input-bg: rgba(9, 9, 11, 0.5);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 360px;
+      min-height: 480px;
+      padding: 0;
+      background: var(--bg);
+      background-image: 
+        radial-gradient(circle at 15% 50%, rgba(139, 92, 246, 0.15), transparent 25%),
+        radial-gradient(circle at 85% 30%, rgba(56, 189, 248, 0.15), transparent 25%);
+      color: var(--text);
+      font-family: 'Outfit', -apple-system, system-ui, sans-serif;
+      font-size: 14px;
+      overflow-x: hidden;
+    }
+
+    .container {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      backdrop-filter: blur(20px);
+      min-height: 100vh;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, #8b5cf6, #38bdf8);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 16px;
+      color: white;
+      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+    }
+
+    .title-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    h1 {
+      font-size: 18px;
+      font-weight: 600;
+      background: linear-gradient(to right, #fff, #a1a1aa);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.02em;
+    }
+
+    .subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .status-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .status-ring {
+      position: relative;
+      width: 12px;
+      height: 12px;
+    }
+
+    .status-dot {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: var(--text-muted);
+      transition: all 0.3s ease;
+    }
+
+    .status-dot.connected {
+      background: var(--success);
+      box-shadow: 0 0 10px var(--success);
+    }
+    
+    .status-dot.disconnected {
+      background: var(--error);
+      box-shadow: 0 0 10px var(--error);
+    }
+
+    .ping-ring {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: var(--success);
+      opacity: 0;
+    }
+
+    .status-dot.connected + .ping-ring {
+      animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+    }
+
+    @keyframes ping {
+      75%, 100% {
+        transform: scale(2.5);
+        opacity: 0;
+      }
+    }
+
+    #statusText {
+      font-weight: 500;
+      font-size: 14px;
+    }
+
+    .form-group {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .field label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      background: var(--input-bg);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+    }
+
+    .row {
+      display: flex;
+      gap: 12px;
+    }
+
+    .row .field {
+      flex: 1;
+    }
+
+    .btn {
+      padding: 14px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), #38bdf8);
+      color: white;
+      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 6px 16px rgba(139, 92, 246, 0.4);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary:active {
+      transform: translateY(1px);
+    }
+
+    .saved-msg {
+      text-align: center;
+      font-size: 13px;
+      color: var(--success);
+      margin-top: -8px;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: all 0.3s;
+    }
+
+    .saved-msg.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .footer {
+      margin-top: auto;
+      font-size: 12px;
+      color: var(--text-muted);
+      text-align: center;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .footer code {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo">AI</div>
+      <div class="title-group">
+        <h1>AI Bridge</h1>
+        <span class="subtitle">Direct to VS Code</span>
+      </div>
+    </div>
+
+    <div class="status-card">
+      <div class="status-ring">
+        <div class="status-dot disconnected" id="statusDot"></div>
+        <div class="ping-ring"></div>
+      </div>
+      <span id="statusText">Checking Connection...</span>
+    </div>
+
+    <div class="form-group">
+      <div class="field">
+        <label>Auth Token</label>
+        <input type="text" id="tokenInput" placeholder="Paste token from hub" autocomplete="off" spellcheck="false" />
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label>Host</label>
+          <input type="text" id="hostInput" value="127.0.0.1" />
+        </div>
+        <div class="field">
+          <label>Port</label>
+          <input type="number" id="portInput" value="8080" />
+        </div>
+      </div>
+
+      <button class="btn btn-primary" id="saveBtn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+          <polyline points="17 21 17 13 7 13 7 21"></polyline>
+          <polyline points="7 3 7 8 15 8"></polyline>
+        </svg>
+        Save & Connect
+      </button>
+      <div class="saved-msg" id="savedMsg">✓ Configuration saved</div>
+    </div>
+
+    <div class="footer">
+      Run <code>ai-bridge start</code> in your terminal and past the token above.
+    </div>
+  </div>
+
+  <script src="popup.js" type="module"></script>
+</body>
+</html>
