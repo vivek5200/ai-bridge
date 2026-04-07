@@ -77,8 +77,12 @@ function connect(config: BridgeConfig) {
   ws.onopen = () => {
     console.log('[Offscreen] Connected to hub.');
     reconnectDelay = 1000;
+
     notifyBackground('CONNECTED', {});
     startHeartbeat();
+
+    // Immediately pre-fetch active file to prevent UI race conditions
+    ws?.send(JSON.stringify({ type: 'GET_ACTIVE_FILE' }));
   };
 
   ws.onmessage = (event) => {

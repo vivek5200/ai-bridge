@@ -1,0 +1,5 @@
+MIT License
+
+Copyright (c) 2026 Vivek Bendre
+
+Permission is hereby granted...

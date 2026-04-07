@@ -118,7 +118,23 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       break;
 
     case 'GET_ACTIVE_FILE':
-      sendResponse({ activeFile });
+      if (activeFile) {
+        sendResponse({ activeFile });
+      } else if (isConnected) {
+        sendToOffscreen({ type: 'SEND_TO_HUB', payload: { type: 'GET_ACTIVE_FILE' } });
+        // Poll for up to 1500ms waiting for the active file to arrive from VS Code
+        let checkCount = 0;
+        const interval = setInterval(() => {
+          if (activeFile || checkCount > 15) {
+            clearInterval(interval);
+            sendResponse({ activeFile });
+          }
+          checkCount++;
+        }, 100);
+        return true; // Keep message channel open for async response
+      } else {
+        sendResponse({ activeFile: null });
+      }
       break;
 
     case 'RECONNECT':
@@ -204,14 +220,15 @@ function sendToOffscreen(data: any) {
 }
 
 async function broadcastToContentScripts(message: any) {
-  const tabs = await chrome.tabs.query({});
-  for (const tab of tabs) {
-    if (tab.id) {
-      chrome.tabs.sendMessage(tab.id, message).catch(() => {
-        // Tab might not have content script
-      });
+  chrome.tabs.query({}, (tabs) => {
+    for (const tab of tabs) {
+      if (tab.id) {
+        chrome.tabs.sendMessage(tab.id, message).catch(() => {});
+      }
     }
-  }
+  });
+  // Also broadcast locally to extension pages (like the popup)
+  chrome.runtime.sendMessage(message).catch(() => {});
 }
 
 // ─── Context Menu ───────────────────────────────────────────────────────────
