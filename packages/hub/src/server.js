@@ -139,7 +139,9 @@ function handleMessage(senderId, senderType, msg) {
     // Browser sends edit, terminal command, or context request → forward to VS Code
     case ALL_TYPES.APPLY_EDIT:
     case ALL_TYPES.RUN_TERMINAL:
-    case ALL_TYPES.GENERATE_CONTEXT: {
+    // Browser requests context generation or guess file path → forward to VS Code
+    case ALL_TYPES.GENERATE_CONTEXT:
+    case ALL_TYPES.GUESS_FILE_PATH: {
       const vsClient = getVSCodeClient();
       if (vsClient && vsClient.ws.readyState === 1) {
         // Attach sender info
@@ -190,8 +192,9 @@ function handleMessage(senderId, senderType, msg) {
       break;
     }
 
-    // VS Code sends context result → forward to specific browser
-    case ALL_TYPES.CONTEXT_RESULT: {
+    // VS Code returns context or guessed file path → forward to browser
+    case ALL_TYPES.CONTEXT_RESULT:
+    case ALL_TYPES.GUESS_FILE_PATH_RESULT: {
       if (msg.tabId) {
         const browserClient = clients.get(msg.tabId);
         if (browserClient) {

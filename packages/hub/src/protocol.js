@@ -9,6 +9,7 @@ const BROWSER_TYPES = {
   APPLY_EDIT: 'APPLY_EDIT',
   RUN_TERMINAL: 'RUN_TERMINAL',
   GENERATE_CONTEXT: 'GENERATE_CONTEXT',
+  GUESS_FILE_PATH: 'GUESS_FILE_PATH',
 };
 
 // Message types sent FROM VS Code extension
@@ -17,6 +18,7 @@ const VSCODE_TYPES = {
   ACTIVE_FILE: 'ACTIVE_FILE',
   ACK: 'ACK',
   CONTEXT_RESULT: 'CONTEXT_RESULT',
+  GUESS_FILE_PATH_RESULT: 'GUESS_FILE_PATH_RESULT',
 };
 
 // Message types sent FROM either direction
@@ -81,6 +83,13 @@ function validateMessage(msg) {
   if (msg.type === ALL_TYPES.GENERATE_CONTEXT) {
     if (!msg.payload || !msg.payload.filePath) {
       return { valid: false, error: 'GENERATE_CONTEXT must have a "payload.filePath"' };
+    }
+  }
+
+  // Validate GUESS_FILE_PATH
+  if (msg.type === ALL_TYPES.GUESS_FILE_PATH) {
+    if (!msg.payload || typeof msg.payload.contextText !== 'string') {
+      return { valid: false, error: 'GUESS_FILE_PATH must have a "payload.contextText" string' };
     }
   }
 

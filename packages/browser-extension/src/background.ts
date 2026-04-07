@@ -195,6 +195,15 @@ function handleHubMessage(msg: any) {
       });
       break;
 
+    case 'GUESS_FILE_PATH_RESULT':
+      broadcastToContentScripts({
+        action: 'GUESS_FILE_PATH_RESULT',
+        success: msg.success,
+        path: msg.path,
+        error: msg.error,
+      });
+      break;
+
     case 'PONG':
       // Heartbeat response — no action needed
       break;

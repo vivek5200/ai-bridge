@@ -26,7 +26,7 @@ export class ActiveFileTracker implements vscode.Disposable {
 
   private updateActiveFile(editor: vscode.TextEditor | undefined): void {
     if (editor && editor.document.uri.scheme === 'file') {
-      this.currentFilePath = vscode.workspace.asRelativePath(editor.document.uri, true);
+      this.currentFilePath = vscode.workspace.asRelativePath(editor.document.uri, false);
     }
   }
 

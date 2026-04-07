@@ -1,8 +1,8 @@
 {
   "name": "@ai-bridge/browser-extension",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "private": true,
-  "description": "AI Bridge browser extension — capture AI code and send to VS Code",
+  "description": "Browser extension to beam code from AI to VS Code",
   "type": "module",
   "scripts": {
     "dev": "vite build --watch",

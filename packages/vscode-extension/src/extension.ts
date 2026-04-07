@@ -244,6 +244,10 @@ async function handleMessage(msg: any) {
       await handleGenerateContext(msg);
       break;
 
+    case 'GUESS_FILE_PATH':
+      await handleGuessFilePath(msg);
+      break;
+
     case 'ERROR':
       log(`Hub error: ${msg.error}`);
       break;
@@ -348,7 +352,7 @@ async function handleGenerateContext(msg: any) {
       return new Promise<void>((resolve, reject) => {
         // Run with simple npx
         cp.exec(
-          `npx ai-bridge-cli "${fileUri.fsPath}" --no-interactive --no-copy -o "${tmpOut}"`, 
+          `npx -y ai-bridge-cli@latest "${fileUri.fsPath}" --no-interactive --no-copy -o "${tmpOut}"`, 
           { cwd }, 
           (error: any, stdout: string, stderr: string) => {
             if (error) {
@@ -383,6 +387,43 @@ async function handleGenerateContext(msg: any) {
       tabId: msg.tabId 
     });
   }
+}
+
+async function handleGuessFilePath(msg: any) {
+  const contextText = msg.payload?.contextText || '';
+  if (!contextText) {
+    sendJSON({ type: 'GUESS_FILE_PATH_RESULT', success: false, tabId: msg.tabId });
+    return;
+  }
+
+  // Extract possible paths
+  const pathRegex = /(?:[A-Za-z0-9_.\-]+\/)*[A-Za-z0-9_.\-]+\.[a-zA-Z0-9]{2,6}/g;
+  const matches = contextText.match(pathRegex) || [];
+
+  let foundPath: string | null = null;
+
+  // Reverse iterate to prefer matches closest to the code block
+  for (const match of matches.reverse()) {
+    try {
+      // Find files matching this string anywhere in the workspace
+      const uris = await vscode.workspace.findFiles(`**/${match}`, '**/node_modules/**', 1);
+      if (uris && uris.length > 0) {
+        foundPath = vscode.workspace.asRelativePath(uris[0], false);
+        break;
+      }
+    } catch {
+      continue;
+    }
+  }
+
+  log(`GUESS_FILE_PATH: Checked ${matches.length} candidates, verified: ${foundPath || 'None'}`);
+
+  sendJSON({
+    type: 'GUESS_FILE_PATH_RESULT',
+    success: true,
+    path: foundPath,
+    tabId: msg.tabId
+  });
 }
 
 // ─── Status Bar ─────────────────────────────────────────────────────────────

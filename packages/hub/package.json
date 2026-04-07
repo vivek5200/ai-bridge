@@ -1,6 +1,6 @@
 {
   "name": "ai-bridge-hub",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Local WebSocket hub for AI Bridge — secure message router with persistent queue",
   "main": "src/server.js",
   "bin": {

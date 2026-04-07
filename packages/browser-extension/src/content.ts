@@ -158,7 +158,16 @@ function injectSendButton(codeBlock: HTMLElement) {
 
     const code = extractCode(codeBlock);
     const lang = detectLanguage(codeBlock);
-    showConfirmationModal(code, lang);
+    const contextText = getContextTextForPrediction(codeBlock);
+    showConfirmationModal(code, lang, null, true); // Open in loading state
+
+    chrome.runtime.sendMessage({
+      action: 'SEND_TO_HUB',
+      data: {
+        type: 'GUESS_FILE_PATH',
+        payload: { contextText }
+      }
+    });
   });
 
   container.appendChild(button);
@@ -262,9 +271,29 @@ function detectLanguage(codeBlock: HTMLElement): string {
   return 'text';
 }
 
+function getContextTextForPrediction(codeBlock: HTMLElement): string {
+  let current: Element | null = codeBlock;
+  while (current && current.parentElement && current.previousElementSibling === null) {
+      if (current.tagName === 'BODY' || current.tagName === 'MAIN') break;
+      current = current.parentElement;
+  }
+  
+  current = current?.previousElementSibling || null;
+  let textChunks: string[] = [];
+  let attempts = 0;
+  
+  while (current && attempts < 3) {
+    textChunks.unshift(current.textContent?.trim() || '');
+    current = current.previousElementSibling;
+    attempts++;
+  }
+
+  return textChunks.join('\n');
+}
+
 // ─── Confirmation Modal ─────────────────────────────────────────────────────
 
-function showConfirmationModal(code: string, language: string) {
+function showConfirmationModal(code: string, language: string, predictedPath: string | null = null, isLoading: boolean = false) {
   // Remove existing modal if any
   const existing = document.getElementById('ai-bridge-modal-host');
   if (existing) {
@@ -490,14 +519,16 @@ function showConfirmationModal(code: string, language: string) {
       <div class="modal">
         <div class="modal-header">
           <h2>📤 Send to VS Code</h2>
-          ${activeFile ? `<span class="active-file-badge">📄 ${activeFile}</span>` : ''}
+          <span class="active-file-badge" id="modalBadge" style="${isLoading ? 'background:#89dceb;color:#1e1e2e;' : (predictedPath ? 'background:#f9e2af;color:#1e1e2e;' : '')}">
+             ${isLoading ? '🔍 Scanning Workspace...' : (predictedPath ? `✨ Detected: ${escapeHtml(predictedPath)}` : (activeFile ? `📄 Active: ${escapeHtml(activeFile)}` : ''))}
+          </span>
           <button class="close-btn" id="closeBtn">✕</button>
         </div>
 
         <div class="modal-body">
           <div class="field">
             <label>Target File Path</label>
-            <input type="text" id="filePath" value="${escapeHtml(activeFile || '')}"
+            <input type="text" id="filePath" value="${escapeHtml(predictedPath || activeFile || '')}"
                    placeholder="e.g., src/components/Chat.tsx" />
           </div>
 
@@ -596,6 +627,32 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         });
       } else {
         showConfirmationModal(message.content || '', 'text');
+      }
+      break;
+
+    case 'GUESS_FILE_PATH_RESULT':
+      if (message.success) {
+        // Find open modal and update it
+        const host = document.getElementById('ai-bridge-modal-host');
+        if (host && host.shadowRoot) {
+           const badge = host.shadowRoot.getElementById('modalBadge');
+           const input = host.shadowRoot.getElementById('filePath') as HTMLInputElement;
+           
+           if (badge) {
+              if (message.path) {
+                 badge.innerHTML = `✨ Verified: ${escapeHtml(message.path)}`;
+                 badge.style.background = '#a6e3a1';
+                 badge.style.color = '#1e1e2e';
+              } else {
+                 badge.innerHTML = activeFile ? `📄 Active: ${escapeHtml(activeFile)}` : '';
+                 badge.style.background = '#313244';
+                 badge.style.color = '#89b4fa';
+              }
+           }
+           if (input && message.path) {
+              input.value = message.path;
+           }
+        }
       }
       break;
 
