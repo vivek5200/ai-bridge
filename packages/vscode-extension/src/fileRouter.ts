@@ -37,9 +37,15 @@ export class FileRouter {
       const files = await vscode.workspace.findFiles(pattern, '**/node_modules/**', 50);
 
       for (const file of files) {
-        const relativePath = vscode.workspace.asRelativePath(file, false).replace(/\\/g, '/');
-        // Check if the relative path ends with the requested path
-        if (relativePath === normalizedPath || relativePath.endsWith(normalizedPath)) {
+        const relativePathFalse = vscode.workspace.asRelativePath(file, false).replace(/\\/g, '/');
+        const relativePathTrue = vscode.workspace.asRelativePath(file, true).replace(/\\/g, '/');
+        
+        // Exact match with or without folder name, or path suffix
+        if (
+          relativePathFalse === normalizedPath ||
+          relativePathTrue === normalizedPath ||
+          relativePathFalse.endsWith('/' + normalizedPath)
+        ) {
           matches.push(file);
         }
       }
