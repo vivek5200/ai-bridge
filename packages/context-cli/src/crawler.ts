@@ -175,8 +175,9 @@ export function crawl(options: CrawlOptions): CrawlResult {
 
     // Check exclude patterns
     const relativePath = path.relative(baseDir, filePath).replace(/\\/g, '/');
+    const segments = relativePath.split('/');
     const shouldExclude = excludePatterns.some(
-      (p) => relativePath.includes(p)
+      (p) => segments.includes(p) || p === relativePath
     );
     if (shouldExclude) {
       continue;
