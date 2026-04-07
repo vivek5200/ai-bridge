@@ -8,6 +8,7 @@
 const BROWSER_TYPES = {
   APPLY_EDIT: 'APPLY_EDIT',
   RUN_TERMINAL: 'RUN_TERMINAL',
+  GENERATE_CONTEXT: 'GENERATE_CONTEXT',
 };
 
 // Message types sent FROM VS Code extension
@@ -15,6 +16,7 @@ const VSCODE_TYPES = {
   READY: 'READY',
   ACTIVE_FILE: 'ACTIVE_FILE',
   ACK: 'ACK',
+  CONTEXT_RESULT: 'CONTEXT_RESULT',
 };
 
 // Message types sent FROM either direction
@@ -72,6 +74,13 @@ function validateMessage(msg) {
   if (msg.type === ALL_TYPES.ACK) {
     if (!msg.id) {
       return { valid: false, error: 'ACK must have an "id" field' };
+    }
+  }
+
+  // Validate GENERATE_CONTEXT payload
+  if (msg.type === ALL_TYPES.GENERATE_CONTEXT) {
+    if (!msg.payload || !msg.payload.filePath) {
+      return { valid: false, error: 'GENERATE_CONTEXT must have a "payload.filePath"' };
     }
   }
 

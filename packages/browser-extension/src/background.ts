@@ -22,8 +22,10 @@ chrome.runtime.onStartup.addListener(() => {
   initConnection();
 });
 
-// Also try to connect when service worker wakes up
+// Initialize on service worker startup
 initConnection();
+
+export {}; // Ensure module scope
 
 // ─── Offscreen Document Management ─────────────────────────────────────────
 
@@ -165,6 +167,15 @@ function handleHubMessage(msg: any) {
       broadcastToContentScripts({
         action: 'ACTIVE_FILE_UPDATED',
         filePath: msg.filePath,
+      });
+      break;
+
+    case 'CONTEXT_RESULT':
+      broadcastToContentScripts({
+        action: 'CONTEXT_RESULT',
+        success: msg.success,
+        context: msg.context,
+        error: msg.error,
       });
       break;
 

@@ -49,6 +49,8 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   return false;
 });
 
+export {}; // Ensure module scope
+
 // ─── WebSocket Connection ───────────────────────────────────────────────────
 
 function connect(config: BridgeConfig) {

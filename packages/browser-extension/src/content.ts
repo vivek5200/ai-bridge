@@ -17,6 +17,16 @@ const processedBlocks = new WeakSet<Element>();
 function init() {
   console.log('[AI Bridge] Content script loaded.');
 
+  // Ask for active file immediately
+  chrome.runtime.sendMessage({ action: 'GET_ACTIVE_FILE' }, undefined, (response: any) => {
+    if (response && response.activeFile) {
+      activeFile = response.activeFile;
+    }
+  });
+
+  // Inject Context button
+  injectContextButton();
+
   // Start observing for code blocks
   startObserver();
 
@@ -162,6 +172,63 @@ function injectSendButton(codeBlock: HTMLElement) {
     codeBlock.style.position = 'relative';
     codeBlock.insertBefore(container, codeBlock.firstChild);
   }
+}
+
+// ─── Floating Context Button ────────────────────────────────────────────────
+
+function injectContextButton() {
+  if (document.getElementById('ai-bridge-context-btn')) return;
+
+  const btn = document.createElement('button');
+  btn.id = 'ai-bridge-context-btn';
+  btn.innerHTML = '📄 Attach Codebase Context';
+  btn.title = 'Get workspace context from VS Code and copy to clipboard';
+  
+  Object.assign(btn.style, {
+    position: 'fixed',
+    bottom: '24px',
+    right: '24px',
+    zIndex: '2147483647',
+    padding: '12px 20px',
+    backgroundColor: '#89b4fa',
+    color: '#1e1e2e',
+    border: 'none',
+    borderRadius: '24px',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+    fontWeight: '600',
+    fontSize: '14px',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    transition: 'transform 0.2s, background-color 0.2s',
+    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+  });
+
+  btn.addEventListener('mouseenter', () => btn.style.transform = 'translateY(-2px)');
+  btn.addEventListener('mouseleave', () => btn.style.transform = 'translateY(0)');
+
+  btn.addEventListener('click', () => {
+    if (!activeFile) {
+        btn.innerHTML = '❌ Open a file in VS Code first';
+        setTimeout(() => btn.innerHTML = '📄 Attach Codebase Context', 3000);
+        return;
+    }
+    
+    btn.innerHTML = '⏳ Gathering...';
+    btn.style.opacity = '0.8';
+    btn.style.pointerEvents = 'none';
+    
+    chrome.runtime.sendMessage({
+      action: 'SEND_TO_HUB',
+      data: {
+        type: 'GENERATE_CONTEXT',
+        payload: { filePath: activeFile }
+      }
+    });
+  });
+
+  document.body.appendChild(btn);
 }
 
 function extractCode(codeBlock: HTMLElement): string {
@@ -519,7 +586,46 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       break;
 
     case 'SHOW_MODAL':
-      showConfirmationModal(message.content || '', 'text');
+      // Provide an updated filePath check if activeFile is still null before showing
+      if (!activeFile) {
+        chrome.runtime.sendMessage({ action: 'GET_ACTIVE_FILE' }, undefined, (response: any) => {
+          if (response && response.activeFile) {
+            activeFile = response.activeFile;
+          }
+          showConfirmationModal(message.content || '', 'text');
+        });
+      } else {
+        showConfirmationModal(message.content || '', 'text');
+      }
+      break;
+
+    case 'CONTEXT_RESULT':
+      const btn = document.getElementById('ai-bridge-context-btn') as HTMLButtonElement;
+      if (btn) {
+        btn.style.opacity = '1';
+        btn.style.pointerEvents = 'auto';
+        if (message.success) {
+          navigator.clipboard.writeText(message.context).then(() => {
+            btn.innerHTML = '✓ Copied to Clipboard!';
+            btn.style.backgroundColor = '#a6e3a1';
+            setTimeout(() => {
+              btn.innerHTML = '📄 Attach Codebase Context';
+              btn.style.backgroundColor = '#89b4fa';
+            }, 3000);
+          }).catch(err => {
+            btn.innerHTML = '❌ Failed to copy to clipboard';
+            setTimeout(() => btn.innerHTML = '📄 Attach Codebase Context', 3000);
+          });
+        } else {
+          btn.innerHTML = '❌ Error';
+          btn.style.backgroundColor = '#f38ba8';
+          console.error('AI Bridge Context Error:', message.error);
+          setTimeout(() => {
+            btn.innerHTML = '📄 Attach Codebase Context';
+            btn.style.backgroundColor = '#89b4fa';
+          }, 3000);
+        }
+      }
       break;
   }
   sendResponse({ ok: true });
@@ -533,3 +639,5 @@ if (document.readyState === 'loading') {
 } else {
   init();
 }
+
+export {}; // Ensure this is treated as a module

@@ -136,9 +136,10 @@ function handleMessage(senderId, senderType, msg) {
   console.log(`[Hub] ${senderId} → ${msg.type}`);
 
   switch (msg.type) {
-    // Browser sends edit or terminal command → forward to VS Code
+    // Browser sends edit, terminal command, or context request → forward to VS Code
     case ALL_TYPES.APPLY_EDIT:
-    case ALL_TYPES.RUN_TERMINAL: {
+    case ALL_TYPES.RUN_TERMINAL:
+    case ALL_TYPES.GENERATE_CONTEXT: {
       const vsClient = getVSCodeClient();
       if (vsClient && vsClient.ws.readyState === 1) {
         // Attach sender info
@@ -185,6 +186,17 @@ function handleMessage(senderId, senderType, msg) {
     case ALL_TYPES.ACTIVE_FILE: {
       for (const browser of getBrowserClients()) {
         sendJSON(browser.ws, msg);
+      }
+      break;
+    }
+
+    // VS Code sends context result → forward to specific browser
+    case ALL_TYPES.CONTEXT_RESULT: {
+      if (msg.tabId) {
+        const browserClient = clients.get(msg.tabId);
+        if (browserClient) {
+          sendJSON(browserClient.ws, msg);
+        }
       }
       break;
     }

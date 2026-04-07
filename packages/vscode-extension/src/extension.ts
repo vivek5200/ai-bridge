@@ -149,6 +149,12 @@ function connect() {
 
     // Send READY to receive queued messages
     sendJSON({ type: 'READY' });
+
+    // Announce active file immediately
+    const fileResp = activeFileTracker.buildResponse();
+    if (fileResp) {
+      sendJSON(fileResp);
+    }
   });
 
   wsClient.on('message', (raw: Buffer) => {
@@ -234,6 +240,10 @@ async function handleMessage(msg: any) {
       handleGetActiveFile(msg);
       break;
 
+    case 'GENERATE_CONTEXT':
+      await handleGenerateContext(msg);
+      break;
+
     case 'ERROR':
       log(`Hub error: ${msg.error}`);
       break;
@@ -298,6 +308,80 @@ function handleGetActiveFile(msg: any) {
   const response = activeFileTracker.buildResponse(msg.tabId);
   if (response) {
     sendJSON(response);
+  }
+}
+
+async function handleGenerateContext(msg: any) {
+  const filePath = msg.payload?.filePath;
+  if (!filePath) {
+    log('GENERATE_CONTEXT: missing filePath component');
+    return;
+  }
+
+  const fileUri = await fileRouter.resolveFile(filePath);
+  if (!fileUri) {
+    log('GENERATE_CONTEXT: user cancelled file selection or file not found');
+    sendJSON({ type: 'CONTEXT_RESULT', success: false, error: 'File not found', tabId: msg.tabId });
+    return;
+  }
+
+  log(`Generating context for ${fileUri.fsPath}...`);
+
+  // Run ai-bridge-cli using child_process
+  const cp = require('child_process');
+  
+  // Use a temporary file for output to handle large context robustly
+  const tmpOut = path.join(os.tmpdir(), `bridge_context_${Date.now()}.txt`);
+
+  try {
+    // Run npx ai-bridge-cli with local node_modules
+    const workspacePath = vscode.workspace.getWorkspaceFolder(fileUri)?.uri.fsPath;
+    
+    // Fallback if not in a workspace
+    const cwd = workspacePath || path.dirname(fileUri.fsPath);
+    
+    await vscode.window.withProgress({
+      location: vscode.ProgressLocation.Notification,
+      title: 'AI Bridge: Gathering Context...',
+      cancellable: false
+    }, async () => {
+      return new Promise<void>((resolve, reject) => {
+        // Run with simple npx
+        cp.exec(
+          `npx ai-bridge-cli "${fileUri.fsPath}" --no-interactive --no-copy -o "${tmpOut}"`, 
+          { cwd }, 
+          (error: any, stdout: string, stderr: string) => {
+            if (error) {
+              log(`GENERATE_CONTEXT stderr: ${stderr}`);
+              reject(error);
+              return;
+            }
+            resolve();
+          }
+        );
+      });
+    });
+
+    // Read the generated file
+    const content = fs.readFileSync(tmpOut, 'utf-8');
+    fs.unlinkSync(tmpOut); // Clean up
+
+    log(`Context generated successfully (${content.length} characters)`);
+    sendJSON({
+      type: 'CONTEXT_RESULT',
+      success: true,
+      context: content,
+      tabId: msg.tabId
+    });
+
+  } catch (error: any) {
+    log(`GENERATE_CONTEXT error: ${error.message}`);
+    sendJSON({ 
+      type: 'CONTEXT_RESULT', 
+      success: false, 
+      error: error.message, 
+      tabId: msg.tabId 
+    });
   }
 }
 
