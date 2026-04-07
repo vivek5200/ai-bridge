@@ -272,23 +272,33 @@ function detectLanguage(codeBlock: HTMLElement): string {
 }
 
 function getContextTextForPrediction(codeBlock: HTMLElement): string {
-  let current: Element | null = codeBlock;
-  while (current && current.parentElement && current.previousElementSibling === null) {
-      if (current.tagName === 'BODY' || current.tagName === 'MAIN') break;
-      current = current.parentElement;
-  }
+  let wrapper = codeBlock.parentElement;
   
-  current = current?.previousElementSibling || null;
-  let textChunks: string[] = [];
-  let attempts = 0;
-  
-  while (current && attempts < 3) {
-    textChunks.unshift(current.textContent?.trim() || '');
-    current = current.previousElementSibling;
-    attempts++;
+  // Go up to a container that holds the preceding text
+  while (wrapper && wrapper.tagName !== 'BODY' && wrapper.tagName !== 'MAIN') {
+    const totalLength = wrapper.textContent?.length || 0;
+    const codeLength = codeBlock.textContent?.length || 0;
+    if (totalLength - codeLength > 20) {
+      break; // Found a container with text outside the code block
+    }
+    wrapper = wrapper.parentElement;
   }
 
-  return textChunks.join('\n');
+  if (!wrapper || wrapper.tagName === 'BODY' || wrapper.tagName === 'MAIN') {
+    return '';
+  }
+
+  let context = '';
+  const walk = document.createTreeWalker(wrapper, NodeFilter.SHOW_TEXT, null);
+  let n: Node | null;
+  while ((n = walk.nextNode())) {
+    if (codeBlock.contains(n)) {
+      break; // Stop collecting when we hit the code block itself
+    }
+    context += n.textContent + ' ';
+  }
+  
+  return context.trim().slice(-1500);
 }
 
 // ─── Confirmation Modal ─────────────────────────────────────────────────────
@@ -631,7 +641,6 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       break;
 
     case 'GUESS_FILE_PATH_RESULT':
-      if (message.success) {
         // Find open modal and update it
         const host = document.getElementById('ai-bridge-modal-host');
         if (host && host.shadowRoot) {
@@ -639,21 +648,19 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
            const input = host.shadowRoot.getElementById('filePath') as HTMLInputElement;
            
            if (badge) {
-              if (message.path) {
+              if (message.success && message.path) {
                  badge.innerHTML = `✨ Verified: ${escapeHtml(message.path)}`;
                  badge.style.background = '#a6e3a1';
                  badge.style.color = '#1e1e2e';
+                 if (input) input.value = message.path;
               } else {
                  badge.innerHTML = activeFile ? `📄 Active: ${escapeHtml(activeFile)}` : '';
                  badge.style.background = '#313244';
                  badge.style.color = '#89b4fa';
+                 // If it failed to guess, we don't change the input box, it already defaulted to activeFile or empty
               }
            }
-           if (input && message.path) {
-              input.value = message.path;
-           }
         }
-      }
       break;
 
     case 'CONTEXT_RESULT':

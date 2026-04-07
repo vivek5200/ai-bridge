@@ -1,6 +1,6 @@
 {
   "name": "@ai-bridge/browser-extension",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "private": true,
   "description": "Browser extension to beam code from AI to VS Code",
   "type": "module",
