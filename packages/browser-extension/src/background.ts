@@ -123,9 +123,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       initConnection();
       sendResponse({ status: 'reconnecting' });
       break;
-
-    default:
-      sendResponse({ status: 'unknown' });
   }
 
   return true;

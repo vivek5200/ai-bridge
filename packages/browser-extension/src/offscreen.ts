@@ -44,19 +44,19 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         status: ws?.readyState === WebSocket.OPEN ? 'connected' : 'disconnected',
       });
       break;
-
-    default:
-      sendResponse({ status: 'unknown_action' });
   }
 
-  return true; // Keep message channel open for async response
+  return false;
 });
 
 // ─── WebSocket Connection ───────────────────────────────────────────────────
 
 function connect(config: BridgeConfig) {
-  if (ws && ws.readyState === WebSocket.OPEN) {
-    console.log('[Offscreen] Already connected.');
+  if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) {
+    console.log('[Offscreen] Already connected or connecting.');
+    if (ws.readyState === WebSocket.OPEN) {
+       notifyBackground('CONNECTED', {});
+    }
     return;
   }
 

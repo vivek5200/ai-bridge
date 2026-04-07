@@ -118,7 +118,10 @@ wss.on('connection', (ws, req) => {
 
   // ── Disconnection ──────────────────────────────────────────────────────
   ws.on('close', (code, reason) => {
-    clients.delete(clientId);
+    // Only delete if this is the currently active connection for this clientId
+    if (clients.get(clientId)?.ws === ws) {
+      clients.delete(clientId);
+    }
     console.log(`[Hub] Client disconnected: ${clientId} (code: ${code})`);
   });
 
