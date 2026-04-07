@@ -7,6 +7,7 @@ import { DiffHandler } from './diffHandler';
 import { TerminalGuard } from './terminalGuard';
 import { FileRouter } from './fileRouter';
 import { ActiveFileTracker } from './activeFileTracker';
+import { SidebarProvider } from './sidebarProvider';
 
 // ─── State ──────────────────────────────────────────────────────────────────
 
@@ -20,6 +21,7 @@ const diffHandler = new DiffHandler();
 const terminalGuard = new TerminalGuard();
 const fileRouter = new FileRouter();
 let activeFileTracker: ActiveFileTracker;
+let sidebarProvider: SidebarProvider;
 
 let outputChannel: vscode.OutputChannel;
 
@@ -31,6 +33,20 @@ export function activate(context: vscode.ExtensionContext) {
 
   activeFileTracker = new ActiveFileTracker();
   context.subscriptions.push(activeFileTracker);
+
+  // Register Sidebar Webview
+  sidebarProvider = new SidebarProvider(context.extensionUri);
+  context.subscriptions.push(
+    vscode.window.registerWebviewViewProvider(
+      SidebarProvider.viewId,
+      sidebarProvider
+    )
+  );
+
+  // Hook into active file tracker changes to update Webview
+  vscode.window.onDidChangeActiveTextEditor(() => {
+    updateSidebarUI();
+  });
 
   // Create status bar item
   statusBarItem = vscode.window.createStatusBarItem(
@@ -305,6 +321,19 @@ function setStatus(status: 'connected' | 'disconnected' | 'connecting') {
       statusBarItem.backgroundColor = undefined;
       break;
   }
+  updateSidebarUI(status);
+}
+
+function updateSidebarUI(specificStatus?: 'connected' | 'disconnected' | 'connecting') {
+  if (!sidebarProvider) { return; }
+
+  const statusToUse = specificStatus || (wsClient && wsClient.readyState === WebSocket.OPEN ? 'connected' : 'disconnected');
+  const config = vscode.workspace.getConfiguration('aiBridge');
+  const host = config.get<string>('hubHost', '127.0.0.1');
+  const port = config.get<number>('hubPort', 8080);
+  const activeFile = activeFileTracker.getActiveFilePath() || 'No file open';
+
+  sidebarProvider.updateState(statusToUse as any, host, port, activeFile);
 }
 
 function showStatus() {

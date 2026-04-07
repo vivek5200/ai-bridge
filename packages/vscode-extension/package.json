@@ -84,6 +84,25 @@
           "description": "Fuzz factor for diff patch application (higher = more lenient)"
         }
       }
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "aiBridgeSidebar",
+          "title": "AI Bridge",
+          "icon": "icon.png"
+        }
+      ]
+    },
+    "views": {
+      "aiBridgeSidebar": [
+        {
+          "type": "webview",
+          "id": "aiBridge.sidebarView",
+          "name": "Connection Hub",
+          "icon": "icon.png"
+        }
+      ]
     }
   },
   "scripts": {

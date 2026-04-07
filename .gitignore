@@ -7,7 +7,8 @@ dist/
 *.vsix
 *.zip
 *.tgz
-
+packages/browser-extension/ai-bridge.crx
+packages/browser-extension/ai-bridge.pem
 # OS files
 .DS_Store
 Thumbs.db
