@@ -2,7 +2,7 @@
   "name": "vivek-ai-bridge",
   "displayName": "Vivek AI Bridge",
   "description": "Apply AI-generated code from ChatGPT, Claude, and Gemini directly in VS Code",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "publisher": "Vivek-Bendre",
   "icon": "icon.png",
   "repository": {
